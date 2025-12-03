@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define K 12
+const size_t K = 12;
 
 int main(int argc, char *argv[]) {
     char* fname = "test.txt";
@@ -11,15 +11,15 @@ int main(int argc, char *argv[]) {
     }
     FILE* f = fopen(fname, "r");
     if (!f) {
-        printf("No such file!\n");
+        perror("No such file!\n");
         return EXIT_FAILURE;
     }
 
-    char bank[100];
+    char bank[101];
     uint64_t total_max = 0;
     while (fscanf(f, "%[0-9]\n", bank) == 1) {
         size_t bank_size = strlen(bank);
-        for (int i = 0; i < bank_size; i++) {
+        for (size_t i = 0; i < bank_size; i++) {
             bank[i] -= '0';
         }
 
@@ -44,6 +44,6 @@ int main(int argc, char *argv[]) {
     }
     fclose(f);
 
-    printf("Solution: %llu\n", total_max);
+    printf("Solution: %llu ...\n", 0L);
     return EXIT_SUCCESS;
 }
