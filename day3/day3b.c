@@ -44,6 +44,6 @@ int main(int argc, char *argv[]) {
     }
     fclose(f);
 
-    printf("Solution: %llu ...\n", 0L);
+    printf("Solution: %llu\n", total_max);
     return EXIT_SUCCESS;
 }
