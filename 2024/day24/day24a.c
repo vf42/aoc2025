@@ -41,6 +41,32 @@ size_t new_gate(char in1[4], char op[4], char in2[4], char out[4]) {
     return addr;
 }
 
+void parse_input(FILE* f) {
+    // Read initial gate positions.
+    char id[4], value[2];
+    id[3] = 0;
+    while (fscanf(f, "%3c: %1c\n", id, value) == 2) {
+        printf("%s %c\n", id, value[0]);
+        new_register(id, value[0] - '0');
+    }
+
+    // The previous fscanf read the first register value
+    // from the next block! Seek back to the start of the line.
+    size_t read_result;
+    do {
+        fseek(f, -2, SEEK_CUR);
+        read_result = fread(value, 1, 1, f);
+    } while (read_result > 0 && value[0] != '\n');
+
+    // Read gates.
+    char in1[4], in2[4], op[4];
+    in1[3] = in2[3] = op[3] = 0;
+    while (fscanf(f, "%3c %[ANDXOR] %3c -> %3c\n", in1, op, in2, id) == 4) {
+        printf("%s %s %s %s\n", in1, op, in2, id);
+        new_gate(in1, op, in2, id);
+    }
+}
+
 int main(int argc, char *argv[]) {
     char* fname = "test.txt";
     if (argc > 1) {
@@ -52,30 +78,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    // Read initial gate positions.
-    char id[4], value[2];
-    id[3] = 0;
-    while (fscanf(f, "%3c: %1c\n", id, value) == 2) {
-        printf("%s %c\n", id, value[0]);
-        new_register(id, value[0] - '0');
-    }
-
-    // The previous fscanf read the first register value
-    // from the next block! Seek back to the start of the line.
-    do {
-        fseek(f, -2, SEEK_CUR);
-        fread(value, 1, 1, f);
-    } while (value[0] != '\n');
-
-    // Read gates.
-    char in1[4], in2[4], op[4];
-    in1[3] = in2[3] = op[3] = 0;
-    // printf("%d\n", fscanf(f, "%3c", in1));
-    // printf("%s\n", in1);
-    while (fscanf(f, "%3c %[ANDXOR] %3c -> %3c\n", in1, op, in2, id) == 4) {
-        printf("%s %s %s %s\n", in1, op, in2, id);
-        new_gate(in1, op, in2, id);
-    }
+    parse_input(f);
 
     fclose(f);
     // printf("Solution: %llu\n", total_max);
