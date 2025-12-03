@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char id[4];
+    uint8_t value;
+} Register;
+
+const size_t max_registers = 1000;
+Register registers[max_registers];
+size_t register_cnt = 0;
+
+size_t new_register(char id[4], uint8_t value) {
+    size_t addr = register_cnt++;
+    strncpy(registers[addr].id, id, 4);
+    registers[addr].value = value;
+    return addr;
+}
+
+typedef struct {
+    char in1[4];
+    char in2[4];
+    char op[4];
+    char out[4];
+    uint8_t ready;
+} Gate;
+
+const size_t max_gates = 1000;
+Gate gates[max_gates];
+size_t gate_count;
+
+size_t new_gate(char in1[4], char op[4], char in2[4], char out[4]) {
+    size_t addr = gate_count++;
+    strncpy(gates[addr].in1, in1, 4);
+    strncpy(gates[addr].in2, in2, 4);
+    strncpy(gates[addr].op, op, 4);
+    strncpy(gates[addr].out, out, 4);
+    gates[addr].ready = 0;
+    return addr;
+}
+
+int main(int argc, char *argv[]) {
+    char* fname = "test.txt";
+    if (argc > 1) {
+        fname = argv[1];
+    }
+    FILE* f = fopen(fname, "r");
+    if (!f) {
+        perror("No such file!\n");
+        return EXIT_FAILURE;
+    }
+
+    // Read initial gate positions.
+    char id[4], value[2];
+    while (fscanf(f, "%3c: %1c\n", id, value) == 2) {
+        printf("%s %c\n", id, value[0]);
+        new_register(id, value[0] - '0');
+    }
+    // int c;
+    // while ((c = fgetc(f)) != EOF && c == '\n') ; // skip empty strings
+    // ungetc(1, f); // put the character back into the file stream, so next fscanf will read it.
+    // Read gates.
+    // fscanf(f, "\n");
+    char in1[4], in2[4], op[4];
+    // printf("%d\n", fscanf(f, "%3c", in1));
+    // printf("%s\n", in1);
+    while (fscanf(f, "%3c %[ANDXOR] %3c -> %3c\n", in1, op, in2, id) == 4) {
+        printf("%s %s %s %s\n", in1, op, in2, id);
+        new_gate(in1, op, in2, id);
+    }
+
+    fclose(f);
+    // printf("Solution: %llu\n", total_max);
+    return EXIT_SUCCESS;
+}
