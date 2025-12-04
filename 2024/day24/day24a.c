@@ -4,22 +4,22 @@
 #include <stdint.h>
 
 /*
-Based on the input data, we may have up to 26*36^2 registers:
-Each register starts with a letter and contains two more numbers or letters.
+Based on the input data, we may have up to 26*36^2 wires:
+Each wire starts with a letter and contains two more numbers or letters.
 So we can store the values as byte array of size 26*36^2.
-The register may take 3 values: -1 (unset), 0 and 1.
+The wire may take 3 values: -1 (unset), 0 and 1.
 */
-#define REGISTER_CNT 33696
-int8_t registers[REGISTER_CNT];
+#define WIRE_CNT 33696
+int8_t wires[WIRE_CNT];
 
 static inline
-void init_registers() {
-    memset(registers, -1, REGISTER_CNT);
+void init_wires() {
+    memset(wires, -1, WIRE_CNT);
 }
 
 static inline
-size_t register_addr(char *id) {
-    // Convert the register id to address.
+size_t wire_addr(char *id) {
+    // Convert the wire id to address.
     size_t addr = (id[0] - 'a') * 1296; // 1296=36^2
     if (id[1] >= 'a') {
         addr += (id[1] - 'a') * 36;   
@@ -35,15 +35,15 @@ size_t register_addr(char *id) {
 }
 
 static inline
-void set_register(char *id, int8_t value) {
-    size_t addr = register_addr(id);
-    registers[addr] = value;
+void set_wire(char *id, int8_t value) {
+    size_t addr = wire_addr(id);
+    wires[addr] = value;
 }
 
 static inline
-int8_t get_register(char *id) {
-    size_t addr = register_addr(id);
-    return registers[addr];
+int8_t get_wire(char *id) {
+    size_t addr = wire_addr(id);
+    return wires[addr];
 }
 
 #define AND 1
@@ -65,9 +65,9 @@ size_t gate_count;
 static inline
 size_t add_gate(char in1[4], char op[4], char in2[4], char out[4]) {
     size_t addr = gate_count++;
-    gates[addr].in1 = register_addr(in1);
-    gates[addr].in2 = register_addr(in2);
-    gates[addr].out = register_addr(out);
+    gates[addr].in1 = wire_addr(in1);
+    gates[addr].in2 = wire_addr(in2);
+    gates[addr].out = wire_addr(out);
     switch(op[0]) {
         case 'A':
             gates[addr].op = AND;
@@ -92,21 +92,21 @@ bool cycle_gates() {
         Gate g = gates[i];
         if (g.ready)
             continue;
-        int8_t in1 = registers[g.in1];
-        int8_t in2 = registers[g.in2];
+        int8_t in1 = wires[g.in1];
+        int8_t in2 = wires[g.in2];
         if (in1 < 0 || in2 < 0) {
             all_ready = false;
             continue;
         }
         switch (g.op) {
             case AND:
-                registers[g.out] = in1 & in2;
+                wires[g.out] = in1 & in2;
                 break;
             case OR:
-                registers[g.out] = in1 | in2;
+                wires[g.out] = in1 | in2;
                 break;
             case XOR:
-                registers[g.out] = in1 ^ in2;
+                wires[g.out] = in1 ^ in2;
                 break;
         }
         g.ready = true;
@@ -120,7 +120,7 @@ size_t get_result() {
     char id[4];
     for (int i = 99; i >= 0; i--) {
         snprintf(id, sizeof(id), "z%02d", i);
-        size_t rval = get_register(id);
+        size_t rval = get_wire(id);
         if (rval != -1) {
             result = (result << 1) + rval;
         }
@@ -134,10 +134,10 @@ void parse_input(FILE* f) {
     id[3] = 0;
     while (fscanf(f, "%3c: %1c\n", id, value) == 2) {
         // printf("%s %c\n", id, value[0]);
-        set_register(id, value[0] - '0');
+        set_wire(id, value[0] - '0');
     }
 
-    // The previous fscanf read the first register value
+    // The previous fscanf read the first wire value
     // from the next block! Seek back to the start of the line.
     size_t read_result;
     do {
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    init_registers();
+    init_wires();
     parse_input(f);
     fclose(f);
 
