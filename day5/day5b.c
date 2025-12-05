@@ -63,8 +63,7 @@ int main(int argc, char *argv[]) {
     // Count numbers in ranges.
     size_t nnumbers = 0;
     for (size_t i = 0; i < nranges; i++) {
-        if (range_end[i] > range_start[i])
-            nnumbers += range_end[i] - range_start[i] + 1;
+        nnumbers += range_end[i] - range_start[i] + 1;
     }
 
     printf("Solution: %zd\n", nnumbers);
