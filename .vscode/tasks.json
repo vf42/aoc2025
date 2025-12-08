@@ -12,7 +12,8 @@
                 "-Wextra",
                 "${file}",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}.out"
+                "${fileDirname}/${fileBasenameNoExtension}.out",
+                "-lm"
             ],
             "group": "build",
             "problemMatcher": ["$gcc"]
