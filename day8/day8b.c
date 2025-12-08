@@ -25,14 +25,6 @@ int comp_connections(const void* a, const void* b) {
     return 0;
 }
 
-int comp_circuit(const void *a, const void *b) {
-    size_t *ca = (size_t*)a;
-    size_t *cb = (size_t*)b;
-    if (*ca < *cb) return -1;
-    if (*ca > *cb) return 1;
-    return 0;
-}
-
 int main(int argc, char *argv[]) {
     char* fname = "test.txt";
     if (argc > 1) {
@@ -61,9 +53,9 @@ int main(int argc, char *argv[]) {
     for (size_t i = 0; i < nboxes - 1; i++) {
         for (size_t j = i+1; j < nboxes; j++) {
             conns[nconn].dist =
-                powf(coords[i*3] - coords[j*3], 2.0) +
-                powf(coords[i*3+1] - coords[j*3+1], 2.0) +
-                powf(coords[i*3+2] - coords[j*3+2], 2.0);
+                pow(coords[i*3] - coords[j*3], 2.0) +
+                pow(coords[i*3+1] - coords[j*3+1], 2.0) +
+                pow(coords[i*3+2] - coords[j*3+2], 2.0);
              conns[nconn].box1 = i;
              conns[nconn].box2 = j;
              ++nconn;
